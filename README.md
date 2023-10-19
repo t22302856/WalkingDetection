@@ -111,7 +111,13 @@ config = {…,
 'freeze_weight': True, … }
 ```
 
-Check Results:
+## Check Results
+Please visit FOLDER:
+```shell
 DATE_Model_outputs
+```
+FIND the file
+```shell
 OverallResultsWindowWise.csv
+```
 
