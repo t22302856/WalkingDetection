@@ -17,31 +17,37 @@ Currently, the testing data is fixed as ADL data while training data could be la
 * copy
 * collections
 
-## Check the path of the data in main.py
+## Check the path of the data & pre-trained model in main.py
 ```python
 config = {...
-'load_path':'/Users/kai-chunliu/Documents/UMass/AHHA/Shirley Ryan AbilityLab/Preprocessing/agOnly/', #lab-based data
-'load_path_ADL': '/Users/kai-chunliu/Documents/UMass/AHHA/Shirley Ryan AbilityLab/Labeling/ADL/', # ADL data
+'load_path':'/AHHA/Shirley Ryan AbilityLab/agOnly/', #lab data
+'load_path_ADL': '/AHHA/Shirley Ryan AbilityLab/Labeling/ADL/', # ADL data
+'flip_net_path': '/AHHA/Shirley Ryan AbilityLab/model_check_point/mtl_best.mdl', # pre-trained model
 ...}
 ```
 
 ### Path of Data Folder
+
+```shell
+main_path = '/AHHA/Shirley Ryan AbilityLab/'
+```
+
 * **lab data**  
 ```shell
-/Users/kai-chunliu/Documents/UMass/AHHA/Shirley Ryan AbilityLab/Preprocessing/agOnly/
+path = main_path + 'agOnly'
 ```
 
 * **ADL data**  
 ```shell
-/Users/kai-chunliu/Documents/UMass/AHHA/Shirley Ryan AbilityLab/Labeling/ADL/csvVersion(ShiftOnly)_ADL
+path = main_path + 'Labeling/ADL/csvVersion(ShiftOnly)_ADL'
 ```
 * **ADL Label**  
 ```shell
-/Users/kai-chunliu/Documents/UMass/AHHA/Shirley Ryan AbilityLab/Labeling/ADL/Labeling_final
+path = main_path + '/Labeling/ADL/Labeling_final'
 ```
 * **Pre-trained model**  
 ```shell
-'flip_net_path': '/Users/kai-chunliu/Documents/code/ssl-wearables-main/model_check_point/mtl_best.mdl', 
+path = main_path +  '/model_check_point/mtl_best.mdl', 
 ```
 ## Directory Structure
 ```shell
