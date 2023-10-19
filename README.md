@@ -39,15 +39,15 @@ path = main_path + 'agOnly'
 
 * **ADL data**  
 ```shell
-path = main_path + 'Labeling/ADL/csvVersion(ShiftOnly)_ADL'
+path = main_path + 'ADL/csvVersion(ShiftOnly)_ADL'
 ```
 * **ADL Label**  
 ```shell
-path = main_path + '/Labeling/ADL/Labeling_final'
+path = main_path + 'ADL/Labeling_final'
 ```
 * **Pre-trained model**  
 ```shell
-path = main_path +  '/model_check_point/mtl_best.mdl', 
+path = main_path +  'model_check_point/mtl_best.mdl', 
 ```
 ## Directory Structure
 ```shell
