@@ -1,10 +1,11 @@
 # WalkingDetection
 
-This an example code to show the implementation of CNN-based and ResNet-based walking detection model.
+This is an example code to show the implementation of CNN-based and ResNet-based walking detection models.
 Currently, the testing data is fixed as ADL data while training data could be lab or ADL data.
 
 
 ## Requirement
+* To use the early-stopping package, please visit https://github.com/Bjarten/early-stopping-pytorch/tree/master.
 * Python >=3.8
 * Sklearn
 * Pandas =2.0.2
