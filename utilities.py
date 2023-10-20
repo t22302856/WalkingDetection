@@ -35,7 +35,7 @@ def signalPlot(c_data, label, subject,n=0):
     plt.title(label+'_S'+subject+'_W'+str(n), fontsize = 20)
     plt.show()
 
-def PerformanceSave(config, Performance, Performance_subject_df, Performance_cont, confu_AllFold, confu_conti_AllFold):
+def PerformanceSave(config, Performance, Performance_subject_df, confu_AllFold):
     indexPerformance = [str(i) for i in range(config['fold'])]
     indexPerformance.append('overall')
 
@@ -46,33 +46,29 @@ def PerformanceSave(config, Performance, Performance_subject_df, Performance_con
     fileName = f"{config['output_path']}WindowResultsSubject_WS{int(config['window_size']/30)}_CNNfilterNumber{config['conv_filters']}_CNNfilterWidth{config['filter_width']}_FCfilterNum{config['fc_filters']}.csv"
     Performance_subject_df.to_csv(fileName, index = True, header=True)
 
-    Performance_cont_df=pd.DataFrame(Performance_cont, index= indexPerformance, columns=['te_acc','te_sen','te_spe','te_pre'])    
-    fileName = f"{config['output_path']}ContinuResults_WS{int(config['window_size']/30)}_CNNfilterNumber{config['conv_filters']}_CNNfilterWidth{config['filter_width']}_FCfilterNum{config['fc_filters']}.csv"
-    Performance_cont_df.to_csv(fileName, index = True, header=True)
+
 
     if config['LabelTarget'] == 1:
         confu_AllFold_df = pd.DataFrame(confu_AllFold, index=['Walking', 'Ramp', 'Staris', 'Non-Walking'], columns=['Walking', 'Ramp', 'Staris', 'Non-Walking'])
-        confu_conti_AllFold_df = pd.DataFrame(confu_conti_AllFold, index=['Walking', 'Ramp', 'Staris', 'Non-Walking'], columns=['Walking', 'Ramp', 'Staris', 'Non-Walking'])
+        
     elif config['LabelTarget'] == 2:
         confu_AllFold_df = pd.DataFrame(confu_AllFold, index=['Walking', 'Non-Walking'], columns=['Walking', 'Non-Walking'])
-        confu_conti_AllFold_df = pd.DataFrame(confu_conti_AllFold, index=['Walking', 'Non-Walking'], columns=['Walking', 'Non-Walking'])
+        
     elif config['LabelTarget'] == 3:
         ID = ['sidewalk','uneven', 'terrain', 'tilted', 'walking', 'ramp', 'stairs','non-walking']
         confu_AllFold_df = pd.DataFrame(confu_AllFold, index=ID, columns=ID)
-        confu_conti_AllFold_df = pd.DataFrame(confu_conti_AllFold, index=ID, columns=ID)
+        
     elif config['LabelTarget'] == 4:
         ID = ['OutdoorWalking', 'IndoorWalking', 'Ramp', 'Staris', 'Non-Walking']
         confu_AllFold_df = pd.DataFrame(confu_AllFold, index=ID, columns=ID)
-        confu_conti_AllFold_df = pd.DataFrame(confu_conti_AllFold, index=ID, columns=ID)
+        
     elif config['LabelTarget'] == 5:
         ID = ['OutdoorWalking', 'IndoorWalking', 'Staris', 'Non-Walking']
         confu_AllFold_df = pd.DataFrame(confu_AllFold, index=ID, columns=ID)
-        confu_conti_AllFold_df = pd.DataFrame(confu_conti_AllFold, index=ID, columns=ID)
-        
+              
     fileName = f"{config['output_path']}confu_AllFold_WS{int(config['window_size']/30)}_CNNfilterNumber{config['conv_filters']}_CNNfilterWidth{config['filter_width']}_FCfilterNum{config['fc_filters']}.csv"
     confu_AllFold_df.to_csv(fileName, index = True, header=True)
-    fileName = f"{config['output_path']}confu_conti_AllFold_WS{int(config['window_size']/30)}_CNNfilterNumber{config['conv_filters']}_CNNfilterWidth{config['filter_width']}_FCfilterNum{config['fc_filters']}.csv"
-    confu_conti_AllFold_df.to_csv(fileName, index = True, header=True)
+
     
     
 def ConfusionSave(config,GT,pred,subpath, fileName):
@@ -207,7 +203,3 @@ def show_confusion_matrix(validations, predictions, LABELS,config):
     plt.show()
     fileName = f"{config['output_path']}Confusion_WS{int(config['window_size']/30)}_CNNfilterNumber{config['conv_filters']}_CNNfilterWidth{config['filter_width']}_FCfilterNum{config['fc_filters']}.png"
     fig.savefig(fileName, bbox_inches='tight')
-   
-    
-        
-    
