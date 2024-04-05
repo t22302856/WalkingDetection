@@ -20,34 +20,31 @@ Currently, the testing data is fixed as ADL data while training data could be la
 ## Check the path of the data & pre-trained model in main.py
 ```python
 config = {...
-'load_path':'/AHHA/Shirley Ryan AbilityLab/agOnly/', #lab data
-'load_path_ADL': '/AHHA/Shirley Ryan AbilityLab/Labeling/ADL/', # ADL data
-'flip_net_path': '/AHHA/Shirley Ryan AbilityLab/model_check_point/mtl_best.mdl', # pre-trained model
+'load_path':'./Lab/', #lab-based data
+'load_path_ADL': './ADL/', # ADL data
+'flip_net_path': './model_check_point/mtl_best.mdl', # pre-trained model
 ...}
 ```
 
 ### Path of Data Folder
 
-```shell
-main_path = '/AHHA/Shirley Ryan AbilityLab/'
-```
-
 * **lab data**  
 ```shell
-path = main_path + 'agOnly'
+path = '/Lab'
 ```
 
 * **ADL data**  
 ```shell
-path = main_path + 'ADL/csvVersion(ShiftOnly)_ADL'
+path = '/ADL'
 ```
+
 * **ADL Label**  
 ```shell
-path = main_path + 'ADL/Labeling_final'
+path = main_path + '/ADL/Labeling_final'
 ```
 * **Pre-trained model**  
 ```shell
-path = main_path +  'model_check_point/mtl_best.mdl', 
+path = '/model_check_point/mtl_best.mdl', 
 ```
 ## Directory Structure
 ```shell
@@ -125,6 +122,6 @@ DATE_Model_outputs
 ```
 FIND the file
 ```shell
-OverallResults_WindowWise.csv
+WindowsResults_WS.._... .csv
 ```
 
