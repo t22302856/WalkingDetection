@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Created on Sat Mar 18 21:08:31 2023
+Created on Apr 4 2024
 
 @author: kai-chunliu
 """
@@ -103,13 +103,6 @@ def init_model(config, device):
             epoch_len=10,
             config=config
         )
-    # else:
-    #     model = SSLNET(
-    #         output_size=cfg.data.output_size, flatten_size=1024
-    #     )  # VGG
-
-    # if cfg.multi_gpu:
-    #     model = nn.DataParallel(model, device_ids=cfg.gpu_ids)
 
     model.to(device, dtype=torch.float)
     return model
@@ -290,6 +283,8 @@ def LSOCV(df_r, df_ADL, config): #leave subjects out cross validation
     Performance_subject = pd.DataFrame(Performance_subject, 
                                        columns=['fold','test_acc','test_sen','test_pre','test_f1'],
                                        index = subject_ind)
+    
+    # 0-3: testing Acc, Sen, Pre, f1, 4-7: training Acc, Sen, Pre, f1, 8-11: Vlidation Acc, Sen, Pre, f1
     Performance=np.zeros((config['fold'],12),dtype=np.float32)
     confu_AllFold = np.zeros((config['nb_classes'], config['nb_classes']),dtype=np.int32 )
     
@@ -299,27 +294,18 @@ def LSOCV(df_r, df_ADL, config): #leave subjects out cross validation
         ## windowing & labeling ##
         #ADL data preparation
         config['cur_fold']= Performance_ind    
-        if len(np.unique(df_ADL['subjID'])) > config['fold']:
-            df_ADL_test = df_ADL[df_ADL['subjID'].isin(kfold_list[Performance_ind])]
-            df_ADL_vali1 = df_ADL[df_ADL['subjID'].isin(kfold_list[(Performance_ind+1)%config['fold']])]
-            df_ADL_vali2 = df_ADL[df_ADL['subjID'].isin(kfold_list[(Performance_ind+2)%config['fold']])]
-            df_ADL_vali = pd.concat([df_ADL_vali1, df_ADL_vali2])
-            df_ADL_train = df_ADL[~df_ADL['subjID'].isin(kfold_list[(Performance_ind+1)%config['fold']]) & ~df_ADL['subjID'].isin(kfold_list[(Performance_ind+2)%config['fold']]) & ~df_ADL['subjID'].isin(kfold_list[Performance_ind])]
-        else:
-            df_ADL_test = df_ADL[df_ADL['subjID'].isin(kfold_list[Performance_ind])]
-            df_ADL_vali1 = df_ADL[df_ADL['subjID'].isin(kfold_list[(Performance_ind+1)%config['fold']])]
-            df_ADL_vali2 = df_ADL[df_ADL['subjID'].isin(kfold_list[(Performance_ind+2)%config['fold']])]
-            df_ADL_vali = pd.concat((df_ADL_vali1, df_ADL_vali2))
-            df_ADL_train = df_ADL[~df_ADL['subjID'].isin(kfold_list[(Performance_ind+1)%config['fold']]) & ~df_ADL['subjID'].isin(kfold_list[(Performance_ind+2)%config['fold']]) & ~df_ADL['subjID'].isin(kfold_list[Performance_ind])]
-        x_ADL_train, y_ADL_train1, SubjIDList_train = data_preprocessing.create_segments_and_labels_ADL(config,df_ADL_train,config['DataAug'])
-        x_ADL_vali, y_ADL_vali1, SubjIDList_vali = data_preprocessing.create_segments_and_labels_ADL(config,df_ADL_vali)
-        x_ADL_test, y_ADL_test1, SubjIDList_test = data_preprocessing.create_segments_and_labels_ADL(config,df_ADL_test)
+        df_ADL_test = df_ADL[df_ADL['subjID'].isin(kfold_list[Performance_ind])]
+        df_ADL_vali  = df_ADL[df_ADL['subjID'].isin(kfold_list[(Performance_ind+1)%config['fold']])]
+        df_ADL_train = df_ADL[~df_ADL['subjID'].isin(kfold_list[(Performance_ind+1)%config['fold']]) & ~df_ADL['subjID'].isin(kfold_list[Performance_ind])]
+        x_ADL_train, y_ADL_train, SubjIDList_train = data_preprocessing.create_segments_and_labels_ADL(config,df_ADL_train)
+        x_ADL_vali, y_ADL_vali, SubjIDList_vali = data_preprocessing.create_segments_and_labels_ADL(config,df_ADL_vali)
+        x_ADL_test, y_ADL_test, SubjIDList_test = data_preprocessing.create_segments_and_labels_ADL(config,df_ADL_test)
         
         #Specified Activity data preparation
         if config['SpecifiedActivity_train']:
             #list the unique subject index
             subject_r_ind=df_r["subjID"].unique()
-            gkf_r = KFold(n_splits = 10,shuffle=True, random_state=config['seed'])
+            gkf_r = KFold(n_splits =config["fold"],shuffle=True, random_state=config['seed'])
 
             #split group
             kfold_r_list =  []
@@ -331,13 +317,12 @@ def LSOCV(df_r, df_ADL, config): #leave subjects out cross validation
                 kfoldInd_r_list.append(c_subject_r_ind)
             
             config['cur_fold']= Performance_ind
-            df_r_test = df_r[df_r['subjID'].isin(kfold_r_list[Performance_ind])]
-            df_r_vali1 = df_r[df_r['subjID'].isin(kfold_r_list[(Performance_ind+1)%config['fold']])]
-            df_r_vali = pd.concat([df_r_vali1, df_r_test])
-            df_r_train = df_r[~df_r['subjID'].isin(kfold_r_list[(Performance_ind+1)%config['fold']]) & ~df_r['subjID'].isin(kfold_list[(Performance_ind+2)%config['fold']]) & ~df_r['subjID'].isin(kfold_list[Performance_ind])]
+            df_r_vali = df_r[df_r['subjID'].isin(kfold_r_list[Performance_ind])]            
+            df_r_train = df_r[~df_r['subjID'].isin(kfold_list[Performance_ind])]
             
-            x_r_train, y_r_train1, y_r_train2, y_r_train3, y_r_train4, y_r_train5, SubjIDList_train = data_preprocessing.create_segments_and_labels(config,df_r_train,config['DataAug'])
-            x_r_vali, y_r_vali1, y_r_vali2, y_r_vali3, y_r_vali4, y_r_vali5, SubjIDList_vali = data_preprocessing.create_segments_and_labels(config,df_r_vali)
+            # y_r_train1: activity label, y_r_train2: binary label for walking(1) & non-walking (0)
+            x_r_train, y_r_train1, y_r_train2= data_preprocessing.create_segments_and_labels(config,df_r_train)
+            x_r_vali, y_r_vali1, y_r_vali2 = data_preprocessing.create_segments_and_labels(config,df_r_vali)
         
         
         
@@ -346,9 +331,9 @@ def LSOCV(df_r, df_ADL, config): #leave subjects out cross validation
             x_train = np.concatenate((x_r_train,x_ADL_train))
             x_vali = np.concatenate((x_r_vali,x_ADL_vali))
             x_test = x_ADL_test
-            y_train = np.concatenate((y_r_train2,y_ADL_train1))
-            y_vali = np.concatenate((y_r_vali2,y_ADL_vali1))
-            y_test = y_ADL_test1
+            y_train = np.concatenate((y_r_train2,y_ADL_train))
+            y_vali = np.concatenate((y_r_vali2,y_ADL_vali))
+            y_test = y_ADL_test
         elif config['SpecifiedActivity_train'] & ~config['ADL_train']: 
             # labeled data training only
             x_train = x_r_train
@@ -356,15 +341,15 @@ def LSOCV(df_r, df_ADL, config): #leave subjects out cross validation
             x_test = x_ADL_test
             y_train = y_r_train2
             y_vali = y_r_vali2
-            y_test = y_ADL_test1
+            y_test = y_ADL_test
         elif ~config['SpecifiedActivity_train'] & config['ADL_train']: 
             # ADL data training only
             x_train = x_ADL_train
             x_vali = x_ADL_vali
             x_test = x_ADL_test
-            y_train = y_ADL_train1
-            y_vali = y_ADL_vali1
-            y_test = y_ADL_test1
+            y_train = y_ADL_train
+            y_vali = y_ADL_vali
+            y_test = y_ADL_test
         else:
             print('error: no training and testing data')
             break
@@ -375,7 +360,6 @@ def LSOCV(df_r, df_ADL, config): #leave subjects out cross validation
             x_test = x_test.reshape((-1,config['nb_channels'],config['window_size']))
         
         ## prepareing for pytorch format ##
-        # choose labels
         x_train, x_vali, x_test = x_train.astype('float32'), x_vali.astype('float32'), x_test.astype('float32')
         config['nb_classes'] = len(np.unique(y_train))
         
@@ -388,23 +372,12 @@ def LSOCV(df_r, df_ADL, config): #leave subjects out cross validation
         valiloader = DataLoader(vali_dataset, batch_size=config['batch_size'], shuffle=False)     
         testloader = DataLoader(test_dataset, batch_size=config['batch_size'], shuffle=False)
         
-        
         #impot model
         # network = DeepConvLSTM(config)
-        if config['ModelName'] == 'CNNc2f1':
-            model = models.CNNc2f1(config).to(device)
-        elif config['ModelName'] == 'CNNc3f1':
+        if config['ModelName'] == 'CNNc3f1':
             model = models.CNNc3f1(config).to(device)
-        elif config['ModelName'] == 'CNNc4f1':
-            model = models.CNNc4f1(config).to(device)
-        elif (config['ModelName'] == 'ResNet3') & (config['ResNetBlock'] == 'BasicBlock'):
-            model = models.ResNet3(config, models.BasicBlock, config['ResNetLayer']).to(device)
-        elif (config['ModelName'] == 'ResNet4') & (config['ResNetBlock'] == 'BasicBlock'):
-            model = models.ResNet4(config, models.BasicBlock, config['ResNetLayer']).to(device)
         elif config['ModelName'] == 'ResNet':
             model = setup_model(config, device)
-            
-        
         
         # initialize the optimizer and loss
         optimizer = torch.optim.Adam(model.parameters(), lr=config['learning_rate'], weight_decay=config['weight_decay'])
@@ -474,7 +447,10 @@ def LSOCV(df_r, df_ADL, config): #leave subjects out cross validation
         # load the last checkpoint with the best model
         if config['early_stopping']:
             model.load_state_dict(torch.load('checkpoint.pt'))
-        plot2(loss_train, loss_vali, loss_test, acc_train, acc_vali, acc_test, f1_train, f1_vali, f1_test, config)
+        
+        #plot classification results
+        if config['Plot_Flag']:
+            plot2(loss_train, loss_vali, loss_test, acc_train, acc_vali, acc_test, f1_train, f1_vali, f1_test, config)
         
         #-------Recording testing, training, and validation reuslts based on windows------
         #testing

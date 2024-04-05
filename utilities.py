@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Created on Sat Mar 18 21:16:49 2023
+Created on Apr 4 2024
 
 @author: kai-chunliu
 """
@@ -40,56 +40,23 @@ def PerformanceSave(config, Performance, Performance_subject_df, confu_AllFold):
     indexPerformance.append('overall')
 
     Performance_df=pd.DataFrame(Performance, index= indexPerformance, columns=['te_acc','te_sen','te_pre','te_f1', 'tr_acc','tr_sen','tr_pre','tr_f1','vali_acc','vali_sen','vali_pre','vali_f1'])    
-    fileName = f"{config['output_path']}WindowResults_WS{int(config['window_size']/30)}_CNNfilterNumber{config['conv_filters']}_CNNfilterWidth{config['filter_width']}_FCfilterNum{config['fc_filters']}.csv"
+    fileName = f"{config['output_path']}WindowResults_WS{int(config['window_size']/config['FS'])}_CNNfilterNumber{config['conv_filters']}_CNNfilterWidth{config['filter_width']}_FCfilterNum{config['fc_filters']}.csv"
     Performance_df.to_csv(fileName, index = True, header=True)
 
-    fileName = f"{config['output_path']}WindowResultsSubject_WS{int(config['window_size']/30)}_CNNfilterNumber{config['conv_filters']}_CNNfilterWidth{config['filter_width']}_FCfilterNum{config['fc_filters']}.csv"
+    fileName = f"{config['output_path']}WindowResultsSubject_WS{int(config['window_size']/config['FS'])}_CNNfilterNumber{config['conv_filters']}_CNNfilterWidth{config['filter_width']}_FCfilterNum{config['fc_filters']}.csv"
     Performance_subject_df.to_csv(fileName, index = True, header=True)
 
 
-
-    if config['LabelTarget'] == 1:
-        confu_AllFold_df = pd.DataFrame(confu_AllFold, index=['Walking', 'Ramp', 'Staris', 'Non-Walking'], columns=['Walking', 'Ramp', 'Staris', 'Non-Walking'])
-        
-    elif config['LabelTarget'] == 2:
-        confu_AllFold_df = pd.DataFrame(confu_AllFold, index=['Walking', 'Non-Walking'], columns=['Walking', 'Non-Walking'])
-        
-    elif config['LabelTarget'] == 3:
-        ID = ['sidewalk','uneven', 'terrain', 'tilted', 'walking', 'ramp', 'stairs','non-walking']
-        confu_AllFold_df = pd.DataFrame(confu_AllFold, index=ID, columns=ID)
-        
-    elif config['LabelTarget'] == 4:
-        ID = ['OutdoorWalking', 'IndoorWalking', 'Ramp', 'Staris', 'Non-Walking']
-        confu_AllFold_df = pd.DataFrame(confu_AllFold, index=ID, columns=ID)
-        
-    elif config['LabelTarget'] == 5:
-        ID = ['OutdoorWalking', 'IndoorWalking', 'Staris', 'Non-Walking']
-        confu_AllFold_df = pd.DataFrame(confu_AllFold, index=ID, columns=ID)
-              
+    confu_AllFold_df = pd.DataFrame(confu_AllFold, index=['Walking', 'Non-Walking'], columns=['Walking', 'Non-Walking'])        
     fileName = f"{config['output_path']}confu_AllFold_WS{int(config['window_size']/30)}_CNNfilterNumber{config['conv_filters']}_CNNfilterWidth{config['filter_width']}_FCfilterNum{config['fc_filters']}.csv"
     confu_AllFold_df.to_csv(fileName, index = True, header=True)
 
     
     
 def ConfusionSave(config,GT,pred,subpath, fileName):
-    if config['LabelTarget'] == 1:
-        confu = confusion_matrix(GT,pred, labels=[1,2,3,0])
-        confu_df = pd.DataFrame(confu, index=['Walking', 'Ramp', 'Staris', 'Non-Walking'], columns=['Walking', 'Ramp', 'Staris', 'Non-Walking'])        
-    elif config['LabelTarget'] == 2:
-        confu = confusion_matrix(GT,pred, labels=[1,0])
-        confu_df = pd.DataFrame(confu, index=['Walking', 'Non-Walking'], columns=['Walking', 'Non-Walking'])
-    elif config['LabelTarget'] == 3:
-        confu = confusion_matrix(GT,pred, labels=[1,2,3,4,5,6,7,8,9,0])
-        ID = ['sidewalk','uneven', 'terrain', 'tilted', 'walking', 'ramp', 'stairs','non-walking']
-        confu_df = pd.DataFrame(confu, index=ID, columns=ID)
-    elif config['LabelTarget'] == 4:
-        confu = confusion_matrix(GT,pred, labels=[1,2,3,4,0])
-        confu_df = pd.DataFrame(confu, index=['OutdoorWalking', 'IndoorWalking', 'Ramp', 'Staris', 'Non-Walking'], columns=['OutdoorWalking', 'IndoorWalking', 'Ramp', 'Staris', 'Non-Walking'])
-    elif config['LabelTarget'] == 5:
-        confu = confusion_matrix(GT,pred, labels=[1,2,3,0])
-        ID = ['OutdoorWalking', 'IndoorWalking', 'Staris', 'Non-Walking']
-        confu_df = pd.DataFrame(confu, index=ID, columns=ID)        
-    
+       
+    confu = confusion_matrix(GT,pred, labels=[1,0])
+    confu_df = pd.DataFrame(confu, index=['Walking', 'Non-Walking'], columns=['Walking', 'Non-Walking'])
     try:
         os.mkdir(config['output_path']+subpath)
     except:
@@ -203,3 +170,7 @@ def show_confusion_matrix(validations, predictions, LABELS,config):
     plt.show()
     fileName = f"{config['output_path']}Confusion_WS{int(config['window_size']/30)}_CNNfilterNumber{config['conv_filters']}_CNNfilterWidth{config['filter_width']}_FCfilterNum{config['fc_filters']}.png"
     fig.savefig(fileName, bbox_inches='tight')
+   
+    
+        
+    
