@@ -28,7 +28,7 @@ config = {...
 
 ### Path of Data Folder
 
-* **lab data**  
+* **lab data and label**  
 ```shell
 path = '/Lab'
 ```
